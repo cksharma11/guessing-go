@@ -17,6 +17,7 @@ func main() {
 
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/signup/{username}", handlers.SignUp).Methods("POST")
+	router.HandleFunc("/guess/{guess}", handlers.Guess).Methods("POST")
 
 	server := &http.Server{
 		Handler:      router,

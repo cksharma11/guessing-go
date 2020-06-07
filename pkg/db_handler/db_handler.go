@@ -19,11 +19,22 @@ func GetDBHandler(redisClient *redis.Client) DBHandler {
 }
 
 func (client *DBHandler) IsUserPresent(username string) bool {
-	member := client.redisClient.SIsMember(context.Background(), "users", username).Val()
-	return member
+	return client.redisClient.SIsMember(context.Background(), "users", username).Val()
 }
 
 func (client *DBHandler) AssociateToken(username string, token string) {
 	client.redisClient.SAdd(context.Background(), "users", username)
-	client.redisClient.HSet(context.Background(), "token", username, token)
+	client.redisClient.HSet(context.Background(), "tokens", username, token)
+}
+
+func (client *DBHandler) ValidateToken(token string) bool {
+	return client.redisClient.HExists(context.Background(), "tokens", token).Val()
+}
+
+func (client *DBHandler) GetUser(token string) string {
+	return client.redisClient.HGet(context.Background(), "tokens", token).Val()
+}
+
+func (client *DBHandler) RegisterGuess(username string, guess string) {
+	client.redisClient.HSet(context.Background(), "guesses", username, guess)
 }

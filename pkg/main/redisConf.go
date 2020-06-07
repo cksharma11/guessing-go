@@ -1,7 +1,7 @@
 package main
 
 import (
-	redis "github.com/go-redis/redis/v8"
+	"github.com/go-redis/redis/v8"
 )
 
 // GetRedisClient : Creates and return redis client
