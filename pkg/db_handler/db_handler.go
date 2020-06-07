@@ -9,11 +9,6 @@ type DBHandler struct {
 	redisClient *redis.Client
 }
 
-type User struct {
-	username string
-	token    string
-}
-
 func GetDBHandler(redisClient *redis.Client) DBHandler {
 	return DBHandler{redisClient}
 }
@@ -37,4 +32,17 @@ func (client *DBHandler) GetUser(token string) string {
 
 func (client *DBHandler) RegisterGuess(username string, guess string) {
 	client.redisClient.HSet(context.Background(), "guesses", username, guess)
+}
+
+func (client *DBHandler) CurrentLevel() string {
+	currentLevel := client.redisClient.Get(context.Background(), "current-level").Val()
+	if currentLevel == "" {
+		client.redisClient.GetSet(context.Background(), "current-level", 1)
+		return client.redisClient.Get(context.Background(), "current-level").Val()
+	}
+	return currentLevel
+}
+
+func (client *DBHandler) IncrementLevel() {
+	client.redisClient.Incr(context.Background(), "current-level")
 }
