@@ -16,7 +16,6 @@ func main() {
 	handlers := h.NewHandlerContext(&redisClient)
 
 	router := mux.NewRouter().StrictSlash(true)
-	router.HandleFunc("/", handlers.HelloAPI)
 	router.HandleFunc("/signup/{username}", handlers.SignUp).Methods("POST")
 
 	server := &http.Server{
