@@ -1,20 +1,23 @@
 package main
 
 import (
+	dh "github.com/cksharma11/guessing/pkg/db_handler"
 	"log"
 	"net/http"
 	"time"
 
-	handler "github.com/cksharma11/guessing/pkg/handler"
+	h "github.com/cksharma11/guessing/pkg/handler"
 
 	"github.com/gorilla/mux"
 )
 
 func main() {
-	router := mux.NewRouter().StrictSlash(true)
+	redisClient := dh.GetDBHandler(GetRedisClient())
+	handlers := h.NewHandlerContext(&redisClient)
 
-	router.HandleFunc("/", handler.HelloAPI)
-	router.HandleFunc("/signup/{username}", handler.Signup).Methods("POST")
+	router := mux.NewRouter().StrictSlash(true)
+	router.HandleFunc("/", handlers.HelloAPI)
+	router.HandleFunc("/signup/{username}", handlers.SignUp).Methods("POST")
 
 	server := &http.Server{
 		Handler:      router,
