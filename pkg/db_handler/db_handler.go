@@ -2,8 +2,17 @@ package dbhandler
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/go-redis/redis/v8"
+	"math/rand"
+	"strconv"
 )
+
+type history struct {
+	Winner  string           `json:"winner"`
+	Level   string           `json:"level"`
+	Guesses map[int][]string `json:"guesses"`
+}
 
 type DBHandler struct {
 	redisClient *redis.Client
@@ -44,5 +53,41 @@ func (client *DBHandler) CurrentLevel() string {
 }
 
 func (client *DBHandler) IncrementLevel() {
+	guesses, _ := client.redisClient.HGetAll(context.Background(), "guesses").Result()
+	winner := getWinner(guesses)
+	h := history{
+		Winner:  winner,
+		Level:   client.CurrentLevel(),
+		Guesses: getGuessMap(guesses),
+	}
+	historyJson, _ := json.Marshal(h)
+	client.redisClient.RPush(context.Background(), "history", historyJson)
 	client.redisClient.Incr(context.Background(), "current-level")
+}
+
+func getWinner(guesses map[string]string) string {
+	guessMap := getGuessMap(guesses)
+	maxGuess := 0
+	var maxGuessBy []string
+	for guess, guessedBy := range guessMap {
+		if maxGuess < guess {
+			maxGuessBy = guessedBy
+		}
+	}
+	return maxGuessBy[rand.Intn(len(maxGuessBy))]
+}
+
+
+
+func getGuessMap(guesses map[string]string) map[int][]string {
+	guessMap := make(map[int][]string)
+	for _, key := range guesses {
+		guess, _ := strconv.Atoi(key)
+		guessMap[guess] = []string{}
+	}
+	for value, key := range guesses {
+		guess, _ := strconv.Atoi(key)
+		guessMap[guess] = append(guessMap[guess], value)
+	}
+	return guessMap
 }
