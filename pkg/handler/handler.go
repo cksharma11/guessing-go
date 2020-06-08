@@ -5,6 +5,7 @@ import (
 	dbHandler "github.com/cksharma11/guessing/pkg/db_handler"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
+	"log"
 	"net/http"
 )
 
@@ -27,7 +28,7 @@ func (redisClient *Context) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	token := uuid.New().String()
-	redisClient.redisClient.AssociateToken(token, username)
+	redisClient.redisClient.AssociateToken(username, token)
 	w.WriteHeader(http.StatusCreated)
 	_, _ = fmt.Fprint(w, token)
 }
@@ -45,6 +46,9 @@ func (redisClient *Context) CurrentLevel(w http.ResponseWriter, r *http.Request)
 }
 
 func (redisClient *Context) IncrementLevel(w http.ResponseWriter, r *http.Request) {
-	redisClient.redisClient.IncrementLevel()
-	_, _ = fmt.Fprint(w, "Level incremented")
+	res, err := redisClient.redisClient.IncrementLevel()
+	if err != nil {
+		log.Fatal("Error while increment level")
+	}
+	_, _ = fmt.Fprint(w, string(res))
 }

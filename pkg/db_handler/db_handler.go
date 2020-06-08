@@ -14,6 +14,12 @@ type history struct {
 	Guesses map[int][]string `json:"guesses"`
 }
 
+type incrementLevelResponse struct {
+	Result string `json:"result"`
+	Pl     string `json:"pl"`
+	Cl     string `json:"cl"`
+}
+
 type DBHandler struct {
 	redisClient *redis.Client
 }
@@ -52,17 +58,27 @@ func (client *DBHandler) CurrentLevel() string {
 	return currentLevel
 }
 
-func (client *DBHandler) IncrementLevel() {
+func (client *DBHandler) IncrementLevel() ([]byte, error) {
 	guesses, _ := client.redisClient.HGetAll(context.Background(), "guesses").Result()
 	winner := getWinner(guesses)
+
 	h := history{
 		Winner:  winner,
 		Level:   client.CurrentLevel(),
 		Guesses: getGuessMap(guesses),
 	}
 	historyJson, _ := json.Marshal(h)
+	cl := client.CurrentLevel()
+
+	client.redisClient.Del(context.Background(), "guesses")
 	client.redisClient.RPush(context.Background(), "history", historyJson)
 	client.redisClient.Incr(context.Background(), "current-level")
+
+	return json.Marshal(incrementLevelResponse{
+		Result: string(historyJson),
+		Pl:     cl,
+		Cl:     client.CurrentLevel(),
+	})
 }
 
 func getWinner(guesses map[string]string) string {
@@ -76,8 +92,6 @@ func getWinner(guesses map[string]string) string {
 	}
 	return maxGuessBy[rand.Intn(len(maxGuessBy))]
 }
-
-
 
 func getGuessMap(guesses map[string]string) map[int][]string {
 	guessMap := make(map[int][]string)
