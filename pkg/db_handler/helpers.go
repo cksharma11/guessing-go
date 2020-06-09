@@ -6,6 +6,10 @@ import (
 )
 
 func getWinner(guesses map[string]string) string {
+	if len(guesses) == 0 {
+		return "Anonymous"
+	}
+	
 	guessMap := getGuessMap(guesses)
 	maxGuess := 0
 	var maxGuessBy []string
@@ -14,7 +18,9 @@ func getWinner(guesses map[string]string) string {
 			maxGuessBy = guessedBy
 		}
 	}
-	return maxGuessBy[rand.Intn(len(maxGuessBy))]
+
+	winnerIndex := rand.Intn(len(maxGuessBy))
+	return maxGuessBy[winnerIndex]
 }
 
 func getGuessMap(guesses map[string]string) map[int][]string {
@@ -29,4 +35,3 @@ func getGuessMap(guesses map[string]string) map[int][]string {
 	}
 	return guessMap
 }
-
