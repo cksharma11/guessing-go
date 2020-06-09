@@ -2,7 +2,7 @@ package handler
 
 import (
 	"encoding/json"
-	dbHandler "github.com/cksharma11/guessing/pkg/db_handler"
+	dbHandler "github.com/cksharma11/guessing/src/pkg/db_handler"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"net/http"

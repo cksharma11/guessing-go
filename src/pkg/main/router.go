@@ -1,8 +1,8 @@
 package main
 
 import (
-	dh "github.com/cksharma11/guessing/pkg/db_handler"
-	h "github.com/cksharma11/guessing/pkg/handler"
+	dh "github.com/cksharma11/guessing/src/pkg/db_handler"
+	h "github.com/cksharma11/guessing/src/pkg/handler"
 	"github.com/gorilla/mux"
 )
 

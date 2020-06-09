@@ -1,7 +1,7 @@
 package main
 
 import (
-	dh "github.com/cksharma11/guessing/pkg/db_handler"
+	dh "github.com/cksharma11/guessing/src/pkg/db_handler"
 	"log"
 	"net/http"
 	"time"
