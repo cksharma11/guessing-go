@@ -8,16 +8,6 @@ import (
 	"net/http"
 )
 
-type Context struct {
-	redisClient *dbHandler.DBHandler
-}
-
-type response struct {
-	Message string `json:"message"`
-	Err     bool   `json:"err"`
-	Data    interface{} `json:"data"`
-}
-
 func sendResponse(w http.ResponseWriter, res response, statusCode int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
