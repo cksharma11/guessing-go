@@ -15,7 +15,7 @@ type history struct {
 }
 
 type IncrementLevelResponse struct {
-	Result string `json:"result"`
+	Result interface{} `json:"result"`
 	Pl     string `json:"pl"`
 	Cl     string `json:"cl"`
 }
@@ -75,7 +75,7 @@ func (client *DBHandler) IncrementLevel() IncrementLevelResponse {
 	client.redisClient.Incr(context.Background(), "current-level")
 
 	return IncrementLevelResponse{
-		Result: string(historyJson),
+		Result: h,
 		Pl:     cl,
 		Cl:     client.CurrentLevel(),
 	}
