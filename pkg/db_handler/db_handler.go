@@ -14,7 +14,7 @@ type history struct {
 	Guesses map[int][]string `json:"guesses"`
 }
 
-type incrementLevelResponse struct {
+type IncrementLevelResponse struct {
 	Result string `json:"result"`
 	Pl     string `json:"pl"`
 	Cl     string `json:"cl"`
@@ -34,7 +34,7 @@ func (client *DBHandler) IsUserPresent(username string) bool {
 
 func (client *DBHandler) AssociateToken(username string, token string) {
 	client.redisClient.SAdd(context.Background(), "users", username)
-	client.redisClient.HSet(context.Background(), "tokens", username, token)
+	client.redisClient.HSet(context.Background(), "tokens", token, username)
 }
 
 func (client *DBHandler) ValidateToken(token string) bool {
@@ -58,7 +58,7 @@ func (client *DBHandler) CurrentLevel() string {
 	return currentLevel
 }
 
-func (client *DBHandler) IncrementLevel() ([]byte, error) {
+func (client *DBHandler) IncrementLevel() IncrementLevelResponse {
 	guesses, _ := client.redisClient.HGetAll(context.Background(), "guesses").Result()
 	winner := getWinner(guesses)
 
@@ -74,11 +74,11 @@ func (client *DBHandler) IncrementLevel() ([]byte, error) {
 	client.redisClient.RPush(context.Background(), "history", historyJson)
 	client.redisClient.Incr(context.Background(), "current-level")
 
-	return json.Marshal(incrementLevelResponse{
+	return IncrementLevelResponse{
 		Result: string(historyJson),
 		Pl:     cl,
 		Cl:     client.CurrentLevel(),
-	})
+	}
 }
 
 func getWinner(guesses map[string]string) string {
