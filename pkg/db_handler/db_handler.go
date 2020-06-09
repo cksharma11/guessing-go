@@ -4,8 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/go-redis/redis/v8"
-	"math/rand"
-	"strconv"
 )
 
 func GetDBHandler(redisClient *redis.Client) DBHandler {
@@ -17,8 +15,14 @@ func (client *DBHandler) IsUserPresent(username string) bool {
 }
 
 func (client *DBHandler) AssociateToken(username string, token string) {
-	client.redisClient.SAdd(context.Background(), "users", username)
-	client.redisClient.HSet(context.Background(), "tokens", token, username)
+	pipe := client.redisClient.TxPipeline()
+	pipe.SAdd(context.Background(), "users", username)
+	pipe.HSet(context.Background(), "tokens", token, username)
+
+	_, err := pipe.Exec(context.Background())
+	if err != nil {
+		panic("Transaction failed")
+	}
 }
 
 func (client *DBHandler) ValidateToken(token string) bool {
@@ -54,38 +58,20 @@ func (client *DBHandler) IncrementLevel() IncrementLevelResponse {
 	historyJson, _ := json.Marshal(h)
 	cl := client.CurrentLevel()
 
-	client.redisClient.Del(context.Background(), "guesses")
-	client.redisClient.RPush(context.Background(), "history", historyJson)
-	client.redisClient.Incr(context.Background(), "current-level")
+	pipe := client.redisClient.TxPipeline()
+	pipe.Del(context.Background(), "guesses")
+	pipe.RPush(context.Background(), "history", historyJson)
+	pipe.Incr(context.Background(), "current-level")
+
+	_, err := pipe.Exec(context.Background())
+
+	if err != nil {
+		panic("Transaction failed")
+	}
 
 	return IncrementLevelResponse{
 		Result: h,
 		Pl:     cl,
 		Cl:     client.CurrentLevel(),
 	}
-}
-
-func getWinner(guesses map[string]string) string {
-	guessMap := getGuessMap(guesses)
-	maxGuess := 0
-	var maxGuessBy []string
-	for guess, guessedBy := range guessMap {
-		if maxGuess < guess {
-			maxGuessBy = guessedBy
-		}
-	}
-	return maxGuessBy[rand.Intn(len(maxGuessBy))]
-}
-
-func getGuessMap(guesses map[string]string) map[int][]string {
-	guessMap := make(map[int][]string)
-	for _, key := range guesses {
-		guess, _ := strconv.Atoi(key)
-		guessMap[guess] = []string{}
-	}
-	for value, key := range guesses {
-		guess, _ := strconv.Atoi(key)
-		guessMap[guess] = append(guessMap[guess], value)
-	}
-	return guessMap
 }
