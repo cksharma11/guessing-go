@@ -10,8 +10,8 @@ type history struct {
 
 type IncrementLevelResponse struct {
 	Result interface{} `json:"result"`
-	Pl     string `json:"pl"`
-	Cl     string `json:"cl"`
+	Pl     string      `json:"pl"`
+	Cl     string      `json:"cl"`
 }
 
 type DBHandler struct {

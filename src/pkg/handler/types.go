@@ -7,7 +7,7 @@ type Context struct {
 }
 
 type response struct {
-	Message string `json:"message"`
-	Err     bool   `json:"err"`
+	Message string      `json:"message"`
+	Err     bool        `json:"err"`
 	Data    interface{} `json:"data"`
 }

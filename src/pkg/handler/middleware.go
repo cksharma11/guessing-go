@@ -31,4 +31,3 @@ func WrapAdminAuth(next http.Handler) http.Handler {
 		_, _ = fmt.Fprint(w, "Invalid Auth")
 	})
 }
-
