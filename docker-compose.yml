@@ -1,0 +1,13 @@
+version: "3.8"
+
+services:
+  guessing:
+    ports:
+      - "8080:8080"
+    build: .
+    links:
+      - redis
+    depends_on:
+      - redis
+  redis:
+    image: redis:latest

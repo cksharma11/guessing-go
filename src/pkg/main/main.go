@@ -12,10 +12,11 @@ func main() {
 
 	server := &http.Server{
 		Handler:      router(&redisClient),
-		Addr:         "127.0.0.1:8080",
+		Addr:         ":8080",
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
 
+	print("Started! ->\n")
 	log.Fatal(server.ListenAndServe())
 }

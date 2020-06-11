@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/cksharma11/guessing/src/pkg/dbkeys"
 	"github.com/go-redis/redis/v8"
+	"log"
 )
 
 func GetDBHandler(redisClient *redis.Client) DBHandler {
@@ -22,7 +23,7 @@ func (client *DBHandler) AssociateToken(username string, token string) {
 
 	_, err := pipe.Exec(context.Background())
 	if err != nil {
-		panic("Transaction failed")
+		log.Fatal(err)
 	}
 }
 
