@@ -76,3 +76,8 @@ func (client *DBHandler) IncrementLevel() IncrementLevelResponse {
 		Cl:     client.CurrentLevel(),
 	}
 }
+
+func (client *DBHandler) History() interface{} {
+	h := client.redisClient.LRange(context.Background(), dbkeys.History, 0, -1).Val()
+	return h
+}

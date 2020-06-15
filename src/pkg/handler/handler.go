@@ -81,3 +81,14 @@ func (redisClient *Context) IncrementLevel(w http.ResponseWriter, r *http.Reques
 
 	sendResponse(w, res, http.StatusAccepted)
 }
+
+func (redisClient *Context) History(w http.ResponseWriter, r *http.Request) {
+	history := redisClient.redisClient.History()
+	res := response{
+		Message: "history",
+		Err:     false,
+		Data:    history,
+	}
+
+	sendResponse(w, res, http.StatusOK)
+}

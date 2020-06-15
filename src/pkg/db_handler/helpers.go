@@ -12,15 +12,16 @@ func getWinner(guesses map[string]string) string {
 
 	guessMap := getGuessMap(guesses)
 	maxGuess := 0
-	var maxGuessBy []string
-	for guess, guessedBy := range guessMap {
+	var playersWithMaxGuess []string
+	for guess, player := range guessMap {
 		if maxGuess < guess {
-			maxGuessBy = guessedBy
+			maxGuess = guess
+			playersWithMaxGuess = player
 		}
 	}
 
-	winnerIndex := rand.Intn(len(maxGuessBy))
-	return maxGuessBy[winnerIndex]
+	i := rand.Intn(len(playersWithMaxGuess))
+	return playersWithMaxGuess[i]
 }
 
 func getGuessMap(guesses map[string]string) map[int][]string {
